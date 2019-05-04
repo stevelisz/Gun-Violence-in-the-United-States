@@ -1,0 +1,286 @@
+<!DOCTYPE HTML>
+<meta charset="utf-8">
+<html>
+<head>
+
+<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:400italic,600italic,700italic,200,300,400,600,700,900">
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/queue.v1.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script type="text/javascript" src="../scripts/page.js"></script>
+
+<script src="https://d3js.org/colorbrewer.v1.min.js"></script>
+<script src="https://d3js.org/d3-color.v1.min.js"></script>
+<script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+
+<link href="../css/bootstrap.min.css" rel="stylesheet">
+<link href="../css/cover.css" rel="stylesheet">
+
+<style>
+
+body, h1, h2, h3, p {
+  margin: 0;
+  padding: 0;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 1em;
+  color: #333;
+  font-weight: 400;
+}
+
+#content {
+  margin: 5px;
+  padding: 20px;
+  width: 1000px;
+  height: 820px;
+  border: 1px solid #ccc;
+}
+
+#state-laws-choice {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+#state-laws-year {
+  text-align: center;
+  margin-top: 20px;
+}
+
+#state-laws-slider input {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#map {
+  margin: 10px 0px 0px 70px;
+  padding: 0px;
+}
+
+h1, h2 {
+  line-height: 1em;
+  font-size: 1.75em;
+  font-weight: 900;
+  color: #000;
+}
+
+h2.year {
+  margin: 10px 0px 0px 0px;
+  font-size: 1.3em;
+  font-weight: 700;
+}
+
+p {
+  margin: 10px 0px 0px 0px;
+}
+
+.county {
+  fill: #fff;
+}
+
+.states {
+  fill: none;
+  stroke: #fff;
+  stroke-linejoin: round;
+}
+
+input {
+  display: block;
+  width: 200px;
+  margin: 10px 0px 0px 0px;
+  border: solid 1px red;
+
+}
+
+#legend text {
+  font-size: 0.7em;
+  color: #333;
+  font-weight: 400;
+}
+
+#map-year {
+  margin: 5px 0px 0px 70px;
+}
+
+.tooltip {
+  position: absolute;
+  padding: 7px;
+  font-size: 0.9em;
+  pointer-events: none;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+
+  -moz-box-shadow:    3px 3px 10px 0px rgba(0, 0, 0, 0.25);
+  -webkit-box-shadow: 3px 3px 10px 0px rgba(0, 0, 0, 0.25);
+  box-shadow:         3px 3px 10px 0px rgba(0, 0, 0, 0.25);
+}
+
+.tooltip p {
+  margin: 0;
+  padding: 0;
+}
+
+.tooltip table {
+  margin: 0;
+  padding: 0;
+  border-collapse: collapse;
+}
+
+.wide {
+  width: 180px;
+}
+
+.bar {
+  fill: #5f89ad;
+}
+
+#bars {
+  align-content: center;
+  margin-bottom: 25px;
+}
+
+.axis {
+  font-size: 13px;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  display: none;
+}
+
+.label {
+  font-size: 16px;
+  position: relative;
+  bottom: 20px;
+}
+
+.slider {
+  float: left;
+}
+
+#map-slider {
+  margin: 0px 0px 0px 70px;
+}
+
+.radio-gv-inquiry {
+  float: right;
+  position: relative;
+  bottom: 50px;
+}
+
+.radio-gv-measure {
+  float: right;
+  position: relative;
+  bottom: 50px;
+}
+
+svg {
+  display: block;
+}
+
+#state-laws-table {
+  width: 80%;
+  min-width: 500px;
+}
+
+.x-axis path,
+.x-axis line,
+.y-axis path,
+.y-axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.x-axis text, .y-axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+}
+
+</style>
+
+</head>
+
+<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+  <header class="masthead mb-auto">
+    <div class="inner">
+      <h3 class="masthead-brand">Gun Violence in the United States</h3>
+      <nav class="nav nav-masthead justify-content-center">
+        <a id="intro-link" class="nav-link active" href="#Introduction" onclick="toggleLinks(this)">Introduction</a>
+        <a id="sgl-link" class="nav-link" href="#StateGunLaws" onclick="toggleLinks(this)">State Gun Laws</a>
+      </nav>
+    </div>
+  </header>
+
+<div id="Introduction" class="intro-text" style="width: 70%">
+      <h1>Introduction</h1>
+      <p>
+          The United States suffers from unusually high rates of gun violence for a country of its means and development. 
+          In 2016 the rate of gun death was 3.16 per 100,000 people, which by a measure of the Institute of Health Metrics and Evaluation 
+          is approximately five times higher than the socioeconomic standings would predict and a far cry from many 
+          countries with stricter gun control policies.
+
+          In 1996 the federal government passed the Dickey Amendment in their omnibus spending bill
+          severely limiting the CDC's allowable funding into gun violence research due to lobbying
+          by the NRA. Since then, little has been done in the United States to try and curb the outlandish rates of gun violence.
+          Fortunately, The Gun Violence Archive formed in 2013 as a nonprofit organizaiton to provide free online public
+          access to accurate information about gun-related violence in the United States. Here, we look at data scraped from the 
+          Gun Violence Archive tracking gun violence events from 2014 to 2017 which we hope to use to get a picture of the state of 
+          gun violence in the United States today.
+      </p>
+    </div>
+  <main role="main" class="inner cover">
+    
+  <div id="content">
+
+  <h1>2013-2018, Gun Violence in the United States</h1>
+  <div id="map"></div>
+  <h2 id="map-year"></h2>
+  <div id="map-slider"></div>
+  <div class="radio-gv-inquiry">
+    <h1>Inquiry</h1>
+  </div>
+  <div class="radio-gv-measure">
+    <h1>Measure</h1>
+  </div>
+  
+</div>
+
+</main>
+
+<div id="StateGunLaws" class="intro-text" style="width: 70%">
+      <h1>State Gun Laws</h1>
+      <p>
+          Boston University School of Public Health researchers have collated a helpful accessory dataset to help explore the ramifications of state laws.
+          Only state and federal laws may exist surrounding gun control, no county or smaller body may legislate on this topic in the
+          United States. States have wildly varying approaches to gun control laws, with some states like California possessing 107 separate laws in 2018,
+          to many more only utilizing 2 laws.
+
+          Some studies have indicated that states with stricter control surrounding who has legal access to guns have been effective in limiting gun violence.
+          We hope to explore the effects of legislation surrounding gun control with the real world ramifications from the Gun Violence Archive to help create
+          leads and insights into the nature of needed legislation.
+      </p>
+    </div>
+
+<div id="bars">
+  <input list="state-laws-list" id="state-laws-choice" name="state-laws-choice" />
+  <datalist id="state-laws-list"></datalist>
+  <h2 id="state-laws-year"></h2>
+  <div id="state-laws-slider"></div>
+  <div id="state-laws-barchart"></div>
+  
+</div>
+
+<div id="state-laws-table"></div>
+
+<script type="text/javascript" src="../scripts/map.js"></script>
+<script type="text/javascript" src="../scripts/bars.js"></script>
+
+
+  <footer class="mastfoot mt-auto">
+    <div class="inner">
+      <p></p>
+    </div>
+  </footer>
+</div>
