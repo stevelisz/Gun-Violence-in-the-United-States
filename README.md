@@ -1,4 +1,5 @@
 # CS590V
+LIVE version: https://gun-violence-v.herokuapp.com/
 Collaboration on group work for UMass Amherst CS590V Spring '19
 
 # Accessing the Visualization
